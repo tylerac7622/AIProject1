@@ -26,6 +26,8 @@ public class Bottleneck : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
+        manager = GameObject.Find("FlockingManager").GetComponent<FlockingManager>();
+
         firstPoint = new Vector3(firstPointPub.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(firstPointPub.x, 0, firstPointPub.y)), firstPointPub.y);
         secondPoint = new Vector3(secondPointPub.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(secondPointPub.x, 0, secondPointPub.y)), secondPointPub.y);
     }
@@ -38,6 +40,9 @@ public class Bottleneck : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //if flocking character, stop all flockers
-        manager.StartBottlenecking(this);
+        if (other.GetComponent<Flock>() != null)
+        {
+            manager.StartBottlenecking(this);
+        }
     }
 }

@@ -5,24 +5,10 @@ using UnityEngine;
 public class FlockingManager : MonoBehaviour
 {
     List<Flock> allFlock = new List<Flock>();
-    enum FlockState
-    {
-        Separation,
-        Cohesion,
-        Alignment,
-        PassingBottleneck,
-    }
-    FlockState state = FlockState.Alignment;
+    Flock.FlockState state;
     Bottleneck toPass;
     int passingID;
     int bottleneckClosestPoint; //1 or 2
-    enum SingleProgress
-    {
-        ToFirstPoint,
-        ToSecondPoint,
-        ToFinalPoint,
-    }
-    SingleProgress progress = SingleProgress.ToFirstPoint;
 
     public Bottleneck ToPass
     {
@@ -47,108 +33,58 @@ public class FlockingManager : MonoBehaviour
         {
             allFlock.Add(all[i]);
         }
+        //StartBottlenecking(GameObject.Find("Bridge (1)").transform.GetChild(0).GetComponent<Bottleneck>());
+
+
+        state = Flock.FlockState.Alignment;
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update()
+    {
 
     }
-    
-    public void Separation()
-    {
-    }
 
-    public void Cohesion()
-    {
-    }
-
-    public void Alignment()
-    {
-    }
     public void StopAllFlock()
     {
+        for (int i = 0; i < allFlock.Count; i++)
+        {
+            allFlock[i].State = Flock.FlockState.Stopped;
+        }
     }
 
     public void ResumeAllFlock()
     {
-
+        for (int i = 0; i < allFlock.Count; i++)
+        {
+            allFlock[i].State = state;
+        }
     }
 
     public void StartBottlenecking(Bottleneck passing)
     {
         toPass = passing;
         StopAllFlock();
-        state = FlockState.PassingBottleneck;
+        state = Flock.FlockState.PassingBottleneck;
         passingID = 0;
-        progress = SingleProgress.ToFirstPoint;
+        allFlock[passingID].State = Flock.FlockState.PassingBottleneck;
+        bottleneckClosestPoint = 1;
+        if (Vector3.Distance(allFlock[0].transform.position, toPass.FirstPoint) > Vector3.Distance(allFlock[0].transform.position, toPass.SecondPoint))
+        {
+            bottleneckClosestPoint = 2;
+        }
     }
 
     public void NextBottleneckPass()
     {
         passingID += 1;
-        allFlock[passingID].State = Flock.FlockState.PassingBottleneck;
-    }
-
-    public void PassBottleneck()
-    {
-        if (progress == SingleProgress.ToFirstPoint)
+        if (passingID >= allFlock.Count)
         {
-            if (bottleneckClosestPoint == 1)
-            {
-                //move allFlock[passingID] to toPass.FirstPoint
-                if(Vector3.Distance(allFlock[passingID].transform.position, toPass.FirstPoint) < 1)
-                {
-                    progress = SingleProgress.ToSecondPoint;
-                }
-            }
-            if (bottleneckClosestPoint == 2)
-            {
-                //move allFlock[passingID] to toPass.SecondPoint
-                if (Vector3.Distance(allFlock[passingID].transform.position, toPass.SecondPoint) < 1)
-                {
-                    progress = SingleProgress.ToSecondPoint;
-                }
-            }
+            ResumeAllFlock();
         }
-        if (progress == SingleProgress.ToSecondPoint)
+        else
         {
-            if (bottleneckClosestPoint == 1)
-            {
-                //move allFlock[passingID] to toPass.SecondPoint
-                if (Vector3.Distance(allFlock[passingID].transform.position, toPass.SecondPoint) < 1)
-                {
-                    //progress = SingleProgress.ToFinalPoint;
-                    progress = SingleProgress.ToFirstPoint;
-                    passingID += 1;
-                    if(passingID >= allFlock.Count)
-                    {
-                        ResumeAllFlock();
-                    }
-                }
-            }
-            if (bottleneckClosestPoint == 2)
-            {
-                //move allFlock[passingID] to toPass.FirstPoint
-                if (Vector3.Distance(allFlock[passingID].transform.position, toPass.FirstPoint) < 1)
-                {
-                    //progress = SingleProgress.ToFinalPoint;
-                    progress = SingleProgress.ToFirstPoint;
-                    passingID += 1;
-                    if (passingID >= allFlock.Count)
-                    {
-                        ResumeAllFlock();
-                    }
-                }
-            }
+            allFlock[passingID].State = Flock.FlockState.PassingBottleneck;
         }
-        if (progress == SingleProgress.ToFinalPoint)
-        {
-
-        }
-        //for each flocker, move to closest bottleneck point
-        //when close to point move on
-        //then move to next bottleneck point
-        //when close to point move on
-        //after that, move to nearby position to make room for remaining flockers
     }
 }
