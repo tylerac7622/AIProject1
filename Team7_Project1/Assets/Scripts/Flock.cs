@@ -54,7 +54,13 @@ public class Flock : BaseMovement
     private Vector3 flockDirection;//direction of this flocker's flock
 
 
-    Vector3 targetPosition;
+    private Vector3 targetPosition;
+
+    //props
+    public Vector3 TargetPosition
+    {
+        set { targetPosition = value; }
+    }
 
     // Use this for initialization
     public override void Start () {
@@ -93,6 +99,12 @@ public class Flock : BaseMovement
         }
 
         DetectFlock();
+
+        //update the target if you reached current target
+        if(Vector3.Distance(transform.position, targetPosition) < 1)
+        {
+            manager.targetReached = true;
+        }
 
         base.Update();
     }

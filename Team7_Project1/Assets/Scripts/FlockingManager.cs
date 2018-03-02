@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class FlockingManager : MonoBehaviour
 {
+    //list of all flocker targets
+    public List<GameObject> targets;
+    private int targetIndex;
+    public bool targetReached;
+
     List<Flock> allFlock = new List<Flock>();
     Flock.FlockState state;
     Bottleneck toPass;
@@ -25,9 +30,50 @@ public class FlockingManager : MonoBehaviour
         }
     }
 
+    public int TargetIndex
+    {
+        get
+        {
+            return targetIndex;
+        }
+    }
+
+
+    private void SwitchTarget()
+    {
+        //change camera view on pressing enter
+        if (targetReached)
+        {
+            targetIndex++;//increment cam index
+
+            //reset to the beginning if on last camera
+            if (targetIndex >= targets.Count)
+            {
+                targetIndex = 0;
+            }
+
+            //set all other cameras inactive
+            for (int i = 0; i < targets.Count; i++)
+            {
+                targets[i].SetActive(false);
+            }
+
+            targets[targetIndex].SetActive(true);
+
+            targetReached = false;
+
+            for (int i = 0; i < allFlock.Count; i++)
+            {
+                allFlock[i].GetComponent<Flock>().TargetPosition = targets[targetIndex].transform.position;
+            }
+        }
+    }
+
     // Use this for initialization
     void Start()
     {
+        targetReached = false;
+
         Flock[] all = GameObject.FindObjectsOfType<Flock>();
         for (int i = 0; i < all.Length; i++)
         {
@@ -42,7 +88,7 @@ public class FlockingManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        SwitchTarget();
     }
 
     public void StopAllFlock()
