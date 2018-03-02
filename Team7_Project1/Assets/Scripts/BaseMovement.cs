@@ -16,11 +16,11 @@ public abstract class BaseMovement : MonoBehaviour {
     public float maxSpeed;
     public float radius;
 
-    private TerrainData tData;//reference to the terrain data
+    private Terrain terrain;//reference to the terrain data
 
     // Use this for initialization
     public virtual void Start () {
-        tData = GameObject.Find("Terrain").GetComponent<Terrain>().terrainData;
+        terrain = GameObject.Find("Terrain").GetComponent<Terrain>();
 	}
 	
 	// Update is called once per frame
@@ -51,7 +51,7 @@ public abstract class BaseMovement : MonoBehaviour {
         velocity.y = 0;
         //add velocity to position
         position += velocity * Time.deltaTime;
-        position.y = tData.GetHeight((int)position.x, (int)position.z); //sets the Y position so that the entities sit on top of the terrain, may need adjustment for height of the model
+        position.y = terrain.SampleHeight(new Vector3((int)position.x, 0, (int)position.z)); //sets the Y position so that the entities sit on top of the terrain, may need adjustment for height of the model
         //calculate direction from velocity
         direction = velocity.normalized;
         //zero out acceleration

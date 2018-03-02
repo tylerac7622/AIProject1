@@ -99,8 +99,6 @@ public class Flock : BaseMovement
 
     protected override void CalcSteeringForces()
     {
-        Debug.Log("calc");
-
         //reset ultForce
         ultForce = Vector3.zero;
         //apply all flocking forces as default, but allow toggling of parts by keyboard input
