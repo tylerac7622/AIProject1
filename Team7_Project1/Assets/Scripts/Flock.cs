@@ -32,10 +32,13 @@ public class Flock : BaseMovement
 
     float movementSpeed = 5;
 
+    public float tooClose;//how close is too close for separation
+
     //weights for the 3 separate parts of flocking
     public float sepWgt;
     public float alignWgt;
     public float cohWgt;
+    public float seekWgt;//importance of seeking the target that moves the flock around//10
 
     //whether or not the parts of flocking are turned on
     private bool separationOn;
@@ -45,25 +48,30 @@ public class Flock : BaseMovement
     public float maxForce; //how quickly they can turn/accelerate
     private Vector3 ultForce;//the vector3 that determines acceleration
 
+    List<GameObject> flock;
     public float flockRadius;//how far away a flocker can be from this flocker to be considered part of its flock
     private Vector3 flockCenter;//point in the middle of this flocker's flock
     private Vector3 flockDirection;//direction of this flocker's flock
 
 
-    Vector3 targetPostion;
+    Vector3 targetPosition;
 
     // Use this for initialization
-    void Start () {
+    public override void Start () {
         manager = GameObject.Find("FlockingManager").GetComponent<FlockingManager>();
+
+        targetPosition = GameObject.Find("Target").transform.position;
 
         //set the flocking forces to be on
         separationOn = true;
         alingmentOn = true;
         cohesionOn = true;
+
+        base.Start();
 	}
 	
 	// Update is called once per frame
-	void Update ()
+	public override void Update()
     {
         if(state == FlockState.PassingBottleneck)
         {
@@ -83,10 +91,16 @@ public class Flock : BaseMovement
         {
             separationOn = !separationOn;
         }
+
+        DetectFlock();
+
+        base.Update();
     }
 
     protected override void CalcSteeringForces()
     {
+        Debug.Log("calc");
+
         //reset ultForce
         ultForce = Vector3.zero;
         //apply all flocking forces as default, but allow toggling of parts by keyboard input
@@ -103,6 +117,9 @@ public class Flock : BaseMovement
             ultForce += sepWgt * Separation();
         }
 
+        //apply the seek force that moves the flock toward
+        ultForce += seekWgt * Seek(targetPosition);
+
         //limit by max force
         Vector3.ClampMagnitude(ultForce, maxForce);
         //apply ultimate force
@@ -118,7 +135,7 @@ public class Flock : BaseMovement
     /// </summary>
     private void DetectFlock()
     {
-        GameObject[] flock = null;
+        flock = new List<GameObject>();
         GameObject[] all = GameObject.FindGameObjectsWithTag("flocker");//get all flockers
 
         //reset center and direction
@@ -130,18 +147,18 @@ public class Flock : BaseMovement
             //add flockers within the radius to this flockers flock
             if (Vector3.Distance(all[i].transform.position, transform.position) < flockRadius)
             {
-                flock[flock.Length] = all[i];
+                flock.Add(all[i]);
             }
         }
 
         //determine the center of the flock and the average direction for use in flocking algorithm
-        for (int i = 0; i < flock.Length; i++)
+        for (int i = 0; i < flock.Count; i++)
         {
             flockCenter += flock[i].transform.position;
             flockDirection += flock[i].transform.forward;
         }
 
-        flockCenter = flockCenter / flock.Length;
+        flockCenter = flockCenter / flock.Count;
         flockDirection.Normalize();
     }
 
@@ -154,7 +171,27 @@ public class Flock : BaseMovement
     /// </summary>
     public Vector3 Separation()
     {
-        return Vector3.zero;
+        Vector3 sep = Vector3.zero;
+        //calc separation for every flocker that is too close
+        foreach (GameObject f in flock)
+        {
+            //ensure that it doesn't check itself
+            if (f.transform.position == transform.position && f.transform.forward == transform.forward)
+            {
+                break;
+            }
+            //create a vector from character to the center of the obstacle
+            Vector3 vecToCenter = f.transform.position - position;
+            //get diff as mag squared of that vector
+            float distance = vecToCenter.sqrMagnitude;
+            if (distance < Mathf.Pow(tooClose, 2))
+            {
+                //vary strength to reflect proximity
+                sep += Flee(f.transform.position) * (tooClose / distance);
+            }
+        }
+        //return the sum of all the separation vectors
+        return sep;
     }
 
     /// <summary>
@@ -177,7 +214,7 @@ public class Flock : BaseMovement
     /// </summary>
     public Vector3 Alignment()
     {
-        return Vector3.zero;
+        return (flockDirection * maxSpeed) - velocity;
     }
 
     public void PassBottleneck()
@@ -216,7 +253,7 @@ public class Flock : BaseMovement
                 if (Vector3.Distance(transform.position, manager.ToPass.SecondPoint) < .2f)
                 {
                     progress = SingleProgress.ToFinalPoint;
-                    targetPostion = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
+                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
                 }
             }
             if (manager.BottleneckClosestPoint == 2)
@@ -228,16 +265,16 @@ public class Flock : BaseMovement
                 if (Vector3.Distance(transform.position, manager.ToPass.FirstPoint) < .2f)
                 {
                     progress = SingleProgress.ToFinalPoint;
-                    targetPostion = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
+                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
                 }
             }
         }
         if (progress == SingleProgress.ToFinalPoint)
         {
             //move to toPass.FirstPoint
-            transform.position = Vector3.MoveTowards(transform.position, targetPostion, Time.deltaTime * movementSpeed);
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * movementSpeed);
             transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
-            if (Vector3.Distance(transform.position, targetPostion) < .2f)
+            if (Vector3.Distance(transform.position, targetPosition) < .2f)
             {
                 //progress = SingleProgress.ToFinalPoint;
                 progress = SingleProgress.ToFirstPoint;

@@ -5,10 +5,10 @@ using UnityEngine;
 public abstract class BaseMovement : MonoBehaviour {
 
     //vectors for movement
-    private Vector3 position;
-    private Vector3 velocity;
-    private Vector3 acceleration;
-    private Vector3 direction;
+    protected Vector3 position;
+    protected Vector3 velocity;
+    protected Vector3 acceleration;
+    protected Vector3 direction;
 
     private Vector3 desiredVelocity;
 
@@ -19,12 +19,12 @@ public abstract class BaseMovement : MonoBehaviour {
     private TerrainData tData;//reference to the terrain data
 
     // Use this for initialization
-    void Start () {
-        tData = GameObject.Find("Terrain").GetComponent<TerrainData>();
+    public virtual void Start () {
+        tData = GameObject.Find("Terrain").GetComponent<Terrain>().terrainData;
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public virtual void Update() {
         CalcSteeringForces();
         UpdatePosition();
         SetTransform();
@@ -94,9 +94,53 @@ public abstract class BaseMovement : MonoBehaviour {
         return desiredVelocity;
     }
 
-    protected Vector3 ObstacleAvoidance(Vector3 obstPos)
+    /// <summary>
+    /// Steers the entity away from the obstacle
+    /// </summary>
+    /// <param name="obst">Obstacle to avoid</param>
+    /// <param name="safeDistance">The radius of where the entity cares about the obstacle</param>
+    /// <returns></returns>
+    protected Vector3 ObstacleAvoidance(GameObject obst, float safeDistance)
     {
-        return Vector3.zero;
+        Vector3 steer = new Vector3(0, 0, 0);
+        //create a vector from character to the center of the obstacle
+        Vector3 vecToCenter = obst.transform.position - position;
+        //get diff as mag squared of that vector
+        float distance = vecToCenter.sqrMagnitude;
+
+        float obstRad = obst.transform.localScale.x;//temp placeholder for the size of the obstacles radius, maybe pass in as a parameter?
+
+        //if its too far away dismiss it
+        if (distance > safeDistance * safeDistance)
+        {
+            return Vector3.zero;
+        }
+        if (Vector3.Dot(transform.forward, vecToCenter) < 0)//dismiss it if its behind you
+        {
+            return Vector3.zero;
+        }
+        //calc dot product between right vector and vector between entities
+        float dot = Vector3.Dot(transform.right, vecToCenter);
+        //if it won't collide dismiss it
+        if (Mathf.Abs(dot) > obstRad + radius)
+        {
+            return Vector3.zero;
+        }
+        //steer away
+        if (dot < 0)
+        {
+            desiredVelocity = transform.right * maxSpeed;
+        }
+        else
+        {
+            desiredVelocity = -transform.right * maxSpeed;
+        }
+        //compute steering force
+        steer = desiredVelocity - velocity;
+        //vary strength to reflect proximity
+        steer *= (safeDistance / distance);
+        //return the steering force
+        return steer;
     }
 
     /// <summary>

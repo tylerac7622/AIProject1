@@ -1727,7 +1727,7 @@ Animator:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1080382478756602}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: e1345f231bddd7a488397fb5ca71c0cb, type: 3}
   m_Controller: {fileID: 9100000, guid: 3c90d75d090136b429461873af7f9f1f, type: 2}
   m_CullingMode: 1
@@ -1743,9 +1743,9 @@ Animation:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1080382478756602}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
-  m_Animation: {fileID: 7400004, guid: 35b9df0d8ef0ab44abeb1b0a9e586310, type: 3}
+  m_Animation: {fileID: 7400002, guid: e1345f231bddd7a488397fb5ca71c0cb, type: 3}
   m_Animations:
   - {fileID: 7400002, guid: 35b9df0d8ef0ab44abeb1b0a9e586310, type: 3}
   - {fileID: 7400000, guid: 35b9df0d8ef0ab44abeb1b0a9e586310, type: 3}
@@ -1765,13 +1765,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cf94ab76bb75a34ea1dc3f57df7963f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 0
-  radius: 0
-  sepWgt: 0
-  alignWgt: 0
-  cohWgt: 0
-  maxForce: 0
-  flockRadius: 0
+  maxSpeed: 1
+  radius: 1
+  tooClose: 0.5
+  sepWgt: 1
+  alignWgt: 1
+  cohWgt: 1
+  seekWgt: 1
+  maxForce: 2
+  flockRadius: 5
 --- !u!137 &137670651095369294
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
