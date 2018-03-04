@@ -2,32 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pathfinder : MonoBehaviour
+public class Pathfinder : BaseMovement
 {
     Stack<PathPoint> path = new Stack<PathPoint>();
     PathManager manager;
-
-    float movementSpeed = 5;
 
     // Use this for initialization
     void Start ()
     {
         manager = GameObject.Find("PathManager").GetComponent<PathManager>();
+        base.Start();
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Recreates the A* path if there currently is no path, or check the character's position against the existing path
+    /// </summary>
+    void Update ()
     {
         if (path.Count > 0)
         {
-            //move towards path.peek()
-            Vector2 pos = Vector2.MoveTowards(new Vector2(transform.position.x, transform.position.z), path.Peek().smallPos, Time.deltaTime * movementSpeed);
-            float terrainHeight = GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(pos.x, 0, pos.y));
-            transform.position = new Vector3(pos.x, terrainHeight, pos.y);
-            Quaternion oldRotation = transform.rotation;
-            transform.LookAt(new Vector3(path.Peek().smallPos.x, transform.position.y, path.Peek().smallPos.y));
-            transform.rotation = Quaternion.Lerp(oldRotation, transform.rotation, Time.deltaTime * movementSpeed);
-
             if (Vector2.Distance(path.Peek().smallPos, new Vector2(transform.position.x, transform.position.z)) < .2f)
             {
                 path.Pop();
@@ -35,6 +29,7 @@ public class Pathfinder : MonoBehaviour
         }
         else
         {
+            //not actually random, just named so
             int rand = manager.ClosestPoint(new Vector2(transform.position.x, transform.position.z)).transform.GetSiblingIndex();
             int rand2 = Random.Range(0, manager.transform.childCount);
             while (rand == rand2)
@@ -44,11 +39,25 @@ public class Pathfinder : MonoBehaviour
             //path = manager.CreatePath(new Vector2(transform.position.x, transform.position.z), manager.transform.GetChild(rand).GetComponent<PathPoint>());
             path = manager.CreatePath(manager.transform.GetChild(rand).GetComponent<PathPoint>(), manager.transform.GetChild(rand2).GetComponent<PathPoint>());
         }
+
+        base.Update();
 	}
 
-    List<PathPoint> ConstructPath (PathPoint start, PathPoint end)
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Steers the character towards the first point in the path, using BaseMovement.cs's methods
+    /// </summary>
+    protected override void CalcSteeringForces()
     {
+        Vector3 ultForce = Vector3.zero;
+        Vector3 target = new Vector3(path.Peek().smallPos.x, 0, path.Peek().smallPos.y);
+        target.y = GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(target.x, 0, target.y));
+        ultForce += Seek(target) * 5;
 
-        return null;
+        //limit by max force
+        Vector3.ClampMagnitude(ultForce, 10);
+        Debug.Log(ultForce);
+        //apply ultimate force
+        ApplyForce(ultForce);
     }
 }
