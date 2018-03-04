@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class PathManager : MonoBehaviour
 {
-
+    public bool debug;
 
 	// Use this for initialization
 	void Start ()
     {
-		
+        debug = true;
 	}
 	
 	// Update is called once per frame
@@ -35,6 +35,8 @@ public class PathManager : MonoBehaviour
     {
         //start from end, work backward making path to start
         Stack<PathPoint> result = new Stack<PathPoint>();
+
+        // this object's children are all just path points
         bool[] allChecked = new bool[transform.childCount];
         for (int i = 0; i < allChecked.Length; i++)
         {
@@ -78,5 +80,12 @@ public class PathManager : MonoBehaviour
             }
         }
         return result;
+    }
+
+    List<PathPoint> ConstructPath(PathPoint start, PathPoint end)
+    {
+        List<PathPoint> open = new List<PathPoint>();
+        List<PathPoint> closed = new List<PathPoint>();
+        return null;
     }
 }

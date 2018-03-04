@@ -6,6 +6,8 @@ public class PathPoint : MonoBehaviour
 {
     public List<GameObject> adjacent;
     public Vector2 smallPos;
+    public PathPoint parent;
+    public bool obstacle;
 
 	// Use this for initialization
 	void Start ()

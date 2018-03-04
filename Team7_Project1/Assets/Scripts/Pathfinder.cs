@@ -45,4 +45,10 @@ public class Pathfinder : MonoBehaviour
             path = manager.CreatePath(manager.transform.GetChild(rand).GetComponent<PathPoint>(), manager.transform.GetChild(rand2).GetComponent<PathPoint>());
         }
 	}
+
+    List<PathPoint> ConstructPath (PathPoint start, PathPoint end)
+    {
+
+        return null;
+    }
 }
