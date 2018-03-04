@@ -18,6 +18,11 @@ public class PathManager : MonoBehaviour
 		
 	}
 
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Gets the closest point to the passed in position (this will need to check island numbers eventually to prevent river crossing)
+    /// return : the pathPoint closest to the passed in vector
+    /// </summary>
     public PathPoint ClosestPoint(Vector2 check)
     {
         PathPoint result = null;
@@ -31,21 +36,30 @@ public class PathManager : MonoBehaviour
         return result;
     }
 
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Creates an A* path when passed in a start and end pathPoint (eventually make this work with any position, not just pathPoints
+    /// return: a stack of the shortest path between the two points
+    /// </summary>
     public Stack<PathPoint> CreatePath(PathPoint start, PathPoint end)
     {
         //start from end, work backward making path to start
         Stack<PathPoint> result = new Stack<PathPoint>();
 
         // this object's children are all just path points
+
+        //boolean to determine which points have been checked
         bool[] allChecked = new bool[transform.childCount];
         for (int i = 0; i < allChecked.Length; i++)
         {
             allChecked[i] = false;
         }
+        //the end is the last point in the stack
         result.Push(end);
         allChecked[end.transform.GetSiblingIndex()] = true;
         bool pathEnded = false;
         PathPoint currentPoint = end;
+        //end the loop when start is reached (whenever start is adjacent to the currentPoint
         while (!pathEnded)
         {
             PathPoint shortest = null;
@@ -65,12 +79,12 @@ public class PathManager : MonoBehaviour
                 if (result.Count == 0)
                 {
                     Debug.Log("There is no possible path. THIS SHOULDN'T HAPPEN.");
-                    Debug.Log(shortest.name);
                 }
                 currentPoint = result.Peek();
             }
             else
             {
+                //if there is a valid adjacent point (shortest), make it the currentPoint, say it has been checked, and add it to the result stack
                 result.Push(shortest);
                 currentPoint = shortest;
                 allChecked[currentPoint.transform.GetSiblingIndex()] = true;
@@ -82,12 +96,5 @@ public class PathManager : MonoBehaviour
         }
         Debug.Log("New path!");
         return result;
-    }
-
-    List<PathPoint> ConstructPath(PathPoint start, PathPoint end)
-    {
-        List<PathPoint> open = new List<PathPoint>();
-        List<PathPoint> closed = new List<PathPoint>();
-        return null;
     }
 }
