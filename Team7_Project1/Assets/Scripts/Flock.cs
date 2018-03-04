@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Flock : BaseMovement
 {
@@ -50,6 +51,8 @@ public class Flock : BaseMovement
     public float flockRadius;//how far away a flocker can be from this flocker to be considered part of its flock
     private Vector3 flockCenter;//point in the middle of this flocker's flock
     private Vector3 flockDirection;//direction of this flocker's flock
+
+    public GameObject flockingTextObject;//the gameobject with the flocking status text on it
     
     public Vector3 targetPosition;
     public Vector2 trackFlockPosition;
@@ -121,6 +124,8 @@ public class Flock : BaseMovement
             }
         }
 
+        UpdateFlockingCanvas();
+
         base.Update();
 
         // DEBUG
@@ -164,6 +169,11 @@ public class Flock : BaseMovement
             //apply ultimate force
             ApplyForce(ultForce);
         }
+    }
+
+    private void UpdateFlockingCanvas()
+    {
+        flockingTextObject.GetComponent<Text>().text = "Flocking Algorithm Forces: \n"  + "Cohesion on - " + cohesionOn + "\nAlignment on - " + alingmentOn + "\nSeparation on - " + separationOn;
     }
 
     /// <summary>
