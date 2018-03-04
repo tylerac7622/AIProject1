@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class FlockingManager : MonoBehaviour
 {
+    public Camera flockerFollow;
+
     //list of all flocker targets
     public GameObject[] forwardTargets;
     private GameObject[] reverseTargets;
@@ -113,6 +115,11 @@ public class FlockingManager : MonoBehaviour
     void Update()
     {
         SwitchTarget();
+
+        //set the flocker follow camera to follow the center of the flock
+        flockerFollow.transform.position = allFlock[0].FlockCenter - allFlock[0].FlockDirection * 5;
+        flockerFollow.transform.position = new Vector3(flockerFollow.transform.position.x, flockerFollow.transform.position.y + 5, flockerFollow.transform.position.z);
+        flockerFollow.transform.LookAt(allFlock[0].FlockCenter + allFlock[0].transform.up);
     }
 
     /// <summary>

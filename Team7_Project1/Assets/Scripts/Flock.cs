@@ -64,6 +64,15 @@ public class Flock : BaseMovement
         set { targetPosition = value; }
     }
 
+    public Vector3 FlockCenter
+    {
+        get { return flockCenter; }
+    }
+    public Vector3 FlockDirection
+    {
+        get { return flockDirection; }
+    }
+
     // Use this for initialization
     public override void Start () {
         manager = GameObject.Find("FlockingManager").GetComponent<FlockingManager>();
