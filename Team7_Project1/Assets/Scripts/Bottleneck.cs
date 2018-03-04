@@ -51,11 +51,14 @@ public class Bottleneck : MonoBehaviour
         //if flocking character, stop all flockers
         if (other.GetComponent<Flock>() != null)
         {
-            other.GetComponent<BaseMovement>().OverBridge = true;
             if (!manager.runningBottleneck)
             {
                 manager.StartBottlenecking(this);
             }
+        }
+        if (other.GetComponent<BaseMovement>() != null)
+        {
+            other.GetComponent<BaseMovement>().OverBridge = true;
         }
     }
     /// <summary>
@@ -65,7 +68,7 @@ public class Bottleneck : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         //if flocking character, stop all flockers
-        if (other.GetComponent<Flock>() != null)
+        if (other.GetComponent<BaseMovement>() != null)
         {
             other.GetComponent<BaseMovement>().OverBridge = false;
         }

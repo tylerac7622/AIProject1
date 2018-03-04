@@ -9,8 +9,11 @@ public class PathPoint : MonoBehaviour
     public PathPoint parent;
     public bool obstacle;
 
-	// Use this for initialization
-	void Start ()
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Make the vector2 position from the global vector3 position, to account for ignoring terrain
+    /// </summary>
+    void Start ()
     {
         smallPos = new Vector2(transform.position.x, transform.position.z);
 	}
