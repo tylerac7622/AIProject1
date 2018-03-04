@@ -51,9 +51,12 @@ public abstract class BaseMovement : MonoBehaviour {
         velocity.y = 0;
         //add velocity to position
         position += velocity * Time.deltaTime;
-        position.y = terrain.SampleHeight(new Vector3((int)position.x, 0, (int)position.z)); //sets the Y position so that the entities sit on top of the terrain, may need adjustment for height of the model
+        position.y = terrain.SampleHeight(new Vector3(/*(int)*/position.x, 0, /*(int)*/position.z)); //sets the Y position so that the entities sit on top of the terrain, may need adjustment for height of the model
         //calculate direction from velocity
-        direction = velocity.normalized;
+        if (velocity.magnitude != 0)
+        {
+            direction = velocity.normalized;
+        }
         //zero out acceleration
         acceleration = Vector3.zero;
     }

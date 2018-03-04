@@ -39,8 +39,9 @@ public class Bottleneck : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("ENTERED");
         //if flocking character, stop all flockers
-        if (other.GetComponent<Flock>() != null)
+        if (other.GetComponent<Flock>() != null && !manager.runningBottleneck)
         {
             manager.StartBottlenecking(this);
         }

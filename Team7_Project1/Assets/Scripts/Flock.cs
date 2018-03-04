@@ -7,13 +7,11 @@ public class Flock : BaseMovement
     FlockingManager manager;
     public enum FlockState
     {
-        Separation,
-        Cohesion,
-        Alignment,
+        Standard,
         PassingBottleneck,
         Stopped,
     }
-    FlockState state = FlockState.Alignment;
+    public FlockState state = FlockState.Standard;
     enum SingleProgress
     {
         ToFirstPoint,
@@ -59,6 +57,10 @@ public class Flock : BaseMovement
     //props
     public Vector3 TargetPosition
     {
+        get
+        {
+            return targetPosition;
+        }
         set { targetPosition = value; }
     }
 
@@ -73,37 +75,41 @@ public class Flock : BaseMovement
         alingmentOn = true;
         cohesionOn = true;
 
+        state = FlockState.Standard;
+
         base.Start();
 	}
 	
 	// Update is called once per frame
 	public override void Update()
     {
-        if(state == FlockState.PassingBottleneck)
+        if (state == FlockState.PassingBottleneck)
         {
             PassBottleneck();
         }
+        else if(state == FlockState.Standard)
+        {
+            //toggle the different forces in flocking
+            if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+            {
+                cohesionOn = !cohesionOn;
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+            {
+                alingmentOn = !alingmentOn;
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+            {
+                separationOn = !separationOn;
+            }
 
-        //toggle the different forces in flocking
-        if(Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
-        {
-            cohesionOn = !cohesionOn;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
-        {
-            alingmentOn = !alingmentOn;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-        {
-            separationOn = !separationOn;
-        }
+            DetectFlock();
 
-        DetectFlock();
-
-        //update the target if you reached current target
-        if(Vector3.Distance(transform.position, targetPosition) < 1)
-        {
-            manager.targetReached = true;
+            //update the target if you reached current target
+            if (Vector3.Distance(transform.position, targetPosition) < 1)
+            {
+                manager.targetReached = true;
+            }
         }
 
         base.Update();
@@ -116,27 +122,39 @@ public class Flock : BaseMovement
     {
         //reset ultForce
         ultForce = Vector3.zero;
-        //apply all flocking forces as default, but allow toggling of parts by keyboard input
-        if (cohesionOn == true)
+        //Debug.Log(state);
+        if (state == FlockState.Standard)
         {
-            ultForce += cohWgt * Cohesion();
+            //apply all flocking forces as default, but allow toggling of parts by keyboard input
+            if (cohesionOn == true)
+            {
+                ultForce += cohWgt * Cohesion();
+            }
+            if (alingmentOn == true)
+            {
+                ultForce += alignWgt * Alignment();
+            }
+            if (separationOn == true)
+            {
+                ultForce += sepWgt * Separation();
+            }
         }
-        if (alingmentOn == true)
-        {
-            ultForce += alignWgt * Alignment();
-        }
-        if (separationOn == true)
-        {
-            ultForce += sepWgt * Separation();
-        }
-
         //apply the seek force that moves the flock toward
         ultForce += seekWgt * Seek(targetPosition);
-
-        //limit by max force
-        Vector3.ClampMagnitude(ultForce, maxForce);
-        //apply ultimate force
-        ApplyForce(ultForce);
+        if (state == FlockState.Stopped)
+        {
+            velocity = Vector3.zero;
+            acceleration = Vector3.zero;
+            ultForce = Vector3.zero;
+        }
+        else
+        {
+            //limit by max force
+            Vector3.ClampMagnitude(ultForce, maxForce);
+            //Debug.Log(state + " - " + ultForce);
+            //apply ultimate force
+            ApplyForce(ultForce);
+        }
     }
 
     /// <summary>
@@ -232,26 +250,68 @@ public class Flock : BaseMovement
 
     public void PassBottleneck()
     {
+        Debug.Log(progress + " - " + Vector3.Distance(transform.position, targetPosition));
         if (progress == SingleProgress.ToFirstPoint)
         {
             if (manager.BottleneckClosestPoint == 1)
             {
-                transform.LookAt(manager.ToPass.FirstPoint);
-                transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.FirstPoint, Time.deltaTime * movementSpeed);
-                transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
-                if (Vector3.Distance(transform.position, manager.ToPass.FirstPoint) < .2f)
+                if (Vector3.Distance(transform.position, targetPosition) < .5f)
                 {
                     progress = SingleProgress.ToSecondPoint;
+                    targetPosition = manager.ToPass.SecondPoint;
                 }
             }
             if (manager.BottleneckClosestPoint == 2)
             {
-                transform.LookAt(manager.ToPass.SecondPoint);
-                transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.SecondPoint, Time.deltaTime * movementSpeed);
-                transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
+                if (Vector3.Distance(transform.position, targetPosition) < .5f)
+                {
+                    progress = SingleProgress.ToSecondPoint;
+                    targetPosition = manager.ToPass.FirstPoint;
+                }
+            }
+        }
+        if (progress == SingleProgress.ToSecondPoint)
+        {
+            if (Vector3.Distance(transform.position, targetPosition) < .5f)
+            {
+                progress = SingleProgress.ToFinalPoint;
+                targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
+                targetPosition.y = GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(targetPosition.x, 0, targetPosition.z));
+            }
+        }
+        if (progress == SingleProgress.ToFinalPoint)
+        {
+            if (Vector3.Distance(transform.position, targetPosition) < .5f)
+            {
+                progress = SingleProgress.ToFirstPoint;
+                manager.NextBottleneckPass();
+            }
+        }
+
+
+
+        /*if (progress == SingleProgress.ToFirstPoint)
+        {
+            if (manager.BottleneckClosestPoint == 1)
+            {
+                //transform.LookAt(manager.ToPass.FirstPoint);
+                //transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.FirstPoint, Time.deltaTime * movementSpeed);
+                //transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
+                if (Vector3.Distance(transform.position, manager.ToPass.FirstPoint) < .2f)
+                {
+                    progress = SingleProgress.ToSecondPoint;
+                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
+                }
+            }
+            if (manager.BottleneckClosestPoint == 2)
+            {
+                //transform.LookAt(manager.ToPass.SecondPoint);
+                //transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.SecondPoint, Time.deltaTime * movementSpeed);
+                //transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
                 if (Vector3.Distance(transform.position, manager.ToPass.SecondPoint) < .2f)
                 {
                     progress = SingleProgress.ToSecondPoint;
+                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
                 }
             }
         }
@@ -294,6 +354,6 @@ public class Flock : BaseMovement
                 manager.NextBottleneckPass();
                 state = FlockState.Stopped;
             }
-        }
+        }*/
     }
 }

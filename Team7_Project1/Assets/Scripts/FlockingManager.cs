@@ -11,7 +11,9 @@ public class FlockingManager : MonoBehaviour
 
     List<Flock> allFlock = new List<Flock>();
     Flock.FlockState state;
+    Vector3 saveTarget;
     Bottleneck toPass;
+    public bool runningBottleneck = false;
     int passingID;
     int bottleneckClosestPoint; //1 or 2
 
@@ -82,7 +84,7 @@ public class FlockingManager : MonoBehaviour
         //StartBottlenecking(GameObject.Find("Bridge (1)").transform.GetChild(0).GetComponent<Bottleneck>());
 
 
-        state = Flock.FlockState.Alignment;
+        state = Flock.FlockState.Standard;
     }
 
     // Update is called once per frame
@@ -103,7 +105,8 @@ public class FlockingManager : MonoBehaviour
     {
         for (int i = 0; i < allFlock.Count; i++)
         {
-            allFlock[i].State = state;
+            allFlock[i].State = Flock.FlockState.Standard;
+            allFlock[i].TargetPosition = saveTarget;
         }
     }
 
@@ -111,26 +114,37 @@ public class FlockingManager : MonoBehaviour
     {
         toPass = passing;
         StopAllFlock();
+        runningBottleneck = true;
         state = Flock.FlockState.PassingBottleneck;
+        saveTarget = allFlock[0].TargetPosition;
         passingID = 0;
         allFlock[passingID].State = Flock.FlockState.PassingBottleneck;
+        allFlock[passingID].TargetPosition = toPass.FirstPoint;
         bottleneckClosestPoint = 1;
         if (Vector3.Distance(allFlock[0].transform.position, toPass.FirstPoint) > Vector3.Distance(allFlock[0].transform.position, toPass.SecondPoint))
         {
             bottleneckClosestPoint = 2;
+            allFlock[passingID].TargetPosition = toPass.SecondPoint;
         }
     }
 
     public void NextBottleneckPass()
     {
+        allFlock[passingID].State = Flock.FlockState.Stopped;
         passingID += 1;
         if (passingID >= allFlock.Count)
         {
             ResumeAllFlock();
+            runningBottleneck = false;
         }
         else
         {
             allFlock[passingID].State = Flock.FlockState.PassingBottleneck;
+            allFlock[passingID].TargetPosition = toPass.FirstPoint;
+            if (bottleneckClosestPoint == 2)
+            {
+                allFlock[passingID].TargetPosition = toPass.SecondPoint;
+            }
         }
     }
 }
