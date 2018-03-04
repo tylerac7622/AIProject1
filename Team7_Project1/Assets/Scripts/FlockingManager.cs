@@ -5,9 +5,12 @@ using UnityEngine;
 public class FlockingManager : MonoBehaviour
 {
     //list of all flocker targets
-    public List<GameObject> targets;
+    public GameObject[] forwardTargets;
+    private GameObject[] reverseTargets;
+    private GameObject[] targets;
     private int targetIndex;
     public bool targetReached;
+    private bool onForwardPath = true;
 
     List<Flock> allFlock = new List<Flock>();
     Flock.FlockState state;
@@ -47,16 +50,27 @@ public class FlockingManager : MonoBehaviour
         //change camera view on pressing enter
         if (targetReached)
         {
-            targetIndex++;//increment cam index
+            targetIndex++;//increment target index
 
-            //reset to the beginning if on last camera
-            if (targetIndex >= targets.Count)
+            //reverses the order of the targets if on last target
+            if (targetIndex >= targets.Length)
             {
-                targetIndex = 0;
+                targetIndex = 1;
+                if(onForwardPath)
+                {
+                    targets = reverseTargets;//reverses the order of the targets instead of starting over at the beginning of the path
+                    onForwardPath = false;
+                }
+                else
+                {
+                    targets = forwardTargets;//once you reach the beginning of the path, turn around and go back to moving in the default direction
+                    onForwardPath = true;
+                }
+                    
             }
 
-            //set all other cameras inactive
-            for (int i = 0; i < targets.Count; i++)
+            //set all other targets inactive
+            for (int i = 0; i < targets.Length; i++)
             {
                 targets[i].SetActive(false);
             }
@@ -82,6 +96,15 @@ public class FlockingManager : MonoBehaviour
         {
             allFlock.Add(all[i]);
         }
+
+        //make a reverse array
+        reverseTargets = new GameObject[forwardTargets.Length];
+        for (int i = 0; i < forwardTargets.Length; i++)
+        {
+            reverseTargets[reverseTargets.Length - (i+1)] = forwardTargets[i];
+        }
+
+        targets = forwardTargets;
 
         state = Flock.FlockState.Standard;
     }
