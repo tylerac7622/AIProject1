@@ -23,10 +23,14 @@ public class PathPointAlt : MonoBehaviour {
         x = (int)transform.position.x;
         z = (int)transform.position.z;
 
+        parent = null;
+
         // get the path manager
         manager = GetComponentInParent<PathManagerAlt>();
 
         // set node matrix up
+        if (manager.nodeMatrix == null)
+            manager.nodeMatrix = new PathPointAlt[manager.matWidth, manager.matHeight];
         manager.nodeMatrix[x, z] = this;
     }
 	

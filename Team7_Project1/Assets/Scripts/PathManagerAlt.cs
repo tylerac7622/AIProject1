@@ -6,8 +6,8 @@ public class PathManagerAlt : MonoBehaviour {
 
     private bool[,] boolMatrix;
     public PathPointAlt[,] nodeMatrix;
-    private int matWidth;
-    private int matHeight;
+    public int matWidth;
+    public int matHeight;
 
     private float costSoFar;
 
@@ -28,12 +28,15 @@ public class PathManagerAlt : MonoBehaviour {
         nodeMatrix = new PathPointAlt[matWidth, matHeight];
 
         // test case mostly not obstacles, so set everything true first
+        int index = 0;
         for (int i = 0; i < matWidth; i++)
         {
             for (int j = 0; j < matHeight; j++)
             {
                 boolMatrix[i, j] = false;
-                //nodeMatrix[i, j] =
+                //string str = "PathPointAlt";
+                nodeMatrix[i, j] = GameObject.Find("PathPointAlt(" + index + ")").GetComponent<PathPointAlt>();
+                index++;
             }
         }
 
@@ -71,22 +74,23 @@ public class PathManagerAlt : MonoBehaviour {
 		if (!didTestCase)
         {
             didTestCase = true;
-            /*
+            //*
             for (int j = 0; j < matWidth; j++)
             {
                 for (int i = 0; i < matHeight; i++)
                 {
-                    //if (nodeMatrix[i, j].obstacle)
-                    //{
-                    //    Debug.Log("obstacle at (" + i + ", " + j + ") = (" + nodeMatrix[i,j].x + ", " + nodeMatrix[i,j].z + ")");
-                    //}
-                    //Debug.Log("at index (" + i + ", " + j + "): (" + nodeMatrix[i, j].x + ", " + nodeMatrix[i, j].z + ")");
+                    if (nodeMatrix[i, j].obstacle)
+                    {
+                        Debug.Log("obstacle at (" + i + ", " + j + ") = (" + nodeMatrix[i,j].x + ", " + nodeMatrix[i,j].z + ")");
+                    }
+                    Debug.Log("at index (" + i + ", " + j + "): (" + nodeMatrix[i, j].x + ", " + nodeMatrix[i, j].z + ")");
                 }
             }
             //*/
 
-            /*
+            //*
             Stack<PathPointAlt> path = ConstructPath(nodeMatrix[4, 5], nodeMatrix[6, 1]);
+            /*
             while(path.Count > 0)
             {
                 PathPointAlt current = path.Pop();
