@@ -65,6 +65,7 @@ public class PathManager : MonoBehaviour
                 if (result.Count == 0)
                 {
                     Debug.Log("There is no possible path. THIS SHOULDN'T HAPPEN.");
+                    Debug.Log(shortest.name);
                 }
                 currentPoint = result.Peek();
             }
@@ -79,6 +80,7 @@ public class PathManager : MonoBehaviour
                 }
             }
         }
+        Debug.Log("New path!");
         return result;
     }
 
