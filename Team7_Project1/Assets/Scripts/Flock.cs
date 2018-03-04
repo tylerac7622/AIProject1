@@ -107,6 +107,9 @@ public class Flock : BaseMovement
         }
 
         base.Update();
+
+        // DEBUG
+        //Debug.Log("progress: " + progress);
     }
 
     protected override void CalcSteeringForces()
