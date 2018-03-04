@@ -11,8 +11,12 @@ public class PathManagerAlt : MonoBehaviour {
 
     private float costSoFar;
 
+    private bool didTestCase;
+
 	// Use this for initialization
 	void Start () {
+        didTestCase = false;
+
         // set width and height arbitrarily
         matWidth = 10;
         matHeight = 10;
@@ -63,7 +67,33 @@ public class PathManagerAlt : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-		
+
+		if (!didTestCase)
+        {
+            didTestCase = true;
+            /*
+            for (int j = 0; j < matWidth; j++)
+            {
+                for (int i = 0; i < matHeight; i++)
+                {
+                    //if (nodeMatrix[i, j].obstacle)
+                    //{
+                    //    Debug.Log("obstacle at (" + i + ", " + j + ") = (" + nodeMatrix[i,j].x + ", " + nodeMatrix[i,j].z + ")");
+                    //}
+                    //Debug.Log("at index (" + i + ", " + j + "): (" + nodeMatrix[i, j].x + ", " + nodeMatrix[i, j].z + ")");
+                }
+            }
+            //*/
+
+            /*
+            Stack<PathPointAlt> path = ConstructPath(nodeMatrix[4, 5], nodeMatrix[6, 1]);
+            while(path.Count > 0)
+            {
+                PathPointAlt current = path.Pop();
+                Debug.Log("(" + current.x + ", " + current.z + ")");
+            }
+            //*/
+        }
 	}
 
     Stack<PathPointAlt> ConstructPath(PathPointAlt start, PathPointAlt end)
@@ -110,6 +140,9 @@ public class PathManagerAlt : MonoBehaviour {
                 open.Remove(current);
                 closed.Add(current);
 
+                // update the cost so far
+                //costSoFar = ????
+
                 // get all the nodes adjacent to this one
                 List<PathPointAlt> adjacent = GetAdjacent(current.x, current.z);
 
@@ -123,7 +156,7 @@ public class PathManagerAlt : MonoBehaviour {
                         adjacent[i].parent = current;
 
                         // calculate score = cost + heuristic
-                        adjacent[i].score = CalculateScore(adjacent[i], current, end);
+                        adjacent[i].score = CalculateScore(adjacent[i], current, start, end);
 
                         // add to open list
                         open.Add(adjacent[i]);
@@ -139,10 +172,17 @@ public class PathManagerAlt : MonoBehaviour {
         return path;
     }
 
-    float CalculateScore(PathPointAlt node, PathPointAlt current, PathPointAlt end)
+    float CalculateScore(PathPointAlt node, PathPointAlt current, PathPointAlt start, PathPointAlt end)
     {
-        costSoFar = CalculateCost(node, current);
-        return costSoFar + CalculateHeuristic(node, end);
+        // old
+        //costSoFar = CalculateCost(node, current);
+        //return costSoFar + CalculateHeuristic(node, end);
+
+        // new
+        //return CalculateCost(node, current) + CalculateHeuristic(node, end);
+
+        // new alternate, with cost being determined by start, rather than current
+        return CalculateCost(node, start) + CalculateHeuristic(node, end);
     }
 
     float CalculateCost(PathPointAlt node, PathPointAlt current)
