@@ -50,9 +50,9 @@ public class Flock : BaseMovement
     public float flockRadius;//how far away a flocker can be from this flocker to be considered part of its flock
     private Vector3 flockCenter;//point in the middle of this flocker's flock
     private Vector3 flockDirection;//direction of this flocker's flock
-
-
-    private Vector3 targetPosition;
+    
+    public Vector3 targetPosition;
+    public Vector2 trackFlockPosition;
 
     //props
     public Vector3 TargetPosition
@@ -248,26 +248,29 @@ public class Flock : BaseMovement
         return (flockDirection * maxSpeed) - velocity;
     }
 
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Checks a flockers current progress on the bottleneck and whether or not they are close enough to move on to the next bottleneck point
+    /// If it is, give the flocker a new target position
+    /// If the bottleneck is completely past, the flocker is given a random position at the end of the flock to wait for the remaining flockers
+    /// Once the flocker reaches the final point, trigger the manager to start a new flocker
+    /// </summary>
     public void PassBottleneck()
     {
-        Debug.Log(progress + " - " + Vector3.Distance(transform.position, targetPosition));
         if (progress == SingleProgress.ToFirstPoint)
         {
-            if (manager.BottleneckClosestPoint == 1)
+            if (Vector3.Distance(transform.position, targetPosition) < .5f)
             {
-                if (Vector3.Distance(transform.position, targetPosition) < .5f)
+                progress = SingleProgress.ToSecondPoint;
+                if (manager.BottleneckClosestPoint == 1)
                 {
-                    progress = SingleProgress.ToSecondPoint;
                     targetPosition = manager.ToPass.SecondPoint;
                 }
-            }
-            if (manager.BottleneckClosestPoint == 2)
-            {
-                if (Vector3.Distance(transform.position, targetPosition) < .5f)
+                if (manager.BottleneckClosestPoint == 2)
                 {
-                    progress = SingleProgress.ToSecondPoint;
                     targetPosition = manager.ToPass.FirstPoint;
                 }
+                manager.StartNextBottlenecker();
             }
         }
         if (progress == SingleProgress.ToSecondPoint)
@@ -275,7 +278,9 @@ public class Flock : BaseMovement
             if (Vector3.Distance(transform.position, targetPosition) < .5f)
             {
                 progress = SingleProgress.ToFinalPoint;
-                targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
+                //targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
+                //targetPosition = transform.position + (transform.forward * 5) + (transform.right * 0);
+                targetPosition = transform.position + (transform.forward * 5) + (transform.right * 0) + new Vector3(trackFlockPosition.x, 0, trackFlockPosition.y);
                 targetPosition.y = GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(targetPosition.x, 0, targetPosition.z));
             }
         }
@@ -284,76 +289,8 @@ public class Flock : BaseMovement
             if (Vector3.Distance(transform.position, targetPosition) < .5f)
             {
                 progress = SingleProgress.ToFirstPoint;
-                manager.NextBottleneckPass();
+                manager.FinishCurrentBottlenecker();
             }
         }
-
-
-
-        /*if (progress == SingleProgress.ToFirstPoint)
-        {
-            if (manager.BottleneckClosestPoint == 1)
-            {
-                //transform.LookAt(manager.ToPass.FirstPoint);
-                //transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.FirstPoint, Time.deltaTime * movementSpeed);
-                //transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
-                if (Vector3.Distance(transform.position, manager.ToPass.FirstPoint) < .2f)
-                {
-                    progress = SingleProgress.ToSecondPoint;
-                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
-                }
-            }
-            if (manager.BottleneckClosestPoint == 2)
-            {
-                //transform.LookAt(manager.ToPass.SecondPoint);
-                //transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.SecondPoint, Time.deltaTime * movementSpeed);
-                //transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
-                if (Vector3.Distance(transform.position, manager.ToPass.SecondPoint) < .2f)
-                {
-                    progress = SingleProgress.ToSecondPoint;
-                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
-                }
-            }
-        }
-        if (progress == SingleProgress.ToSecondPoint)
-        {
-            if (manager.BottleneckClosestPoint == 1)
-            {
-                transform.LookAt(manager.ToPass.SecondPoint);
-                transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.SecondPoint, Time.deltaTime * movementSpeed);
-                //stay on bridge, not terrain
-                transform.position = new Vector3(transform.position.x, 50, transform.position.z);
-                if (Vector3.Distance(transform.position, manager.ToPass.SecondPoint) < .2f)
-                {
-                    progress = SingleProgress.ToFinalPoint;
-                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
-                }
-            }
-            if (manager.BottleneckClosestPoint == 2)
-            {
-                transform.LookAt(manager.ToPass.FirstPoint);
-                transform.position = Vector3.MoveTowards(transform.position, manager.ToPass.FirstPoint, Time.deltaTime * movementSpeed);
-                //stay on bridge, not terrain
-                transform.position = new Vector3(transform.position.x, 50, transform.position.z);
-                if (Vector3.Distance(transform.position, manager.ToPass.FirstPoint) < .2f)
-                {
-                    progress = SingleProgress.ToFinalPoint;
-                    targetPosition = transform.position + (transform.forward * Random.Range(.5f, 5)) + (transform.right * Random.Range(-2.5f, 2.5f));
-                }
-            }
-        }
-        if (progress == SingleProgress.ToFinalPoint)
-        {
-            //move to toPass.FirstPoint
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * movementSpeed);
-            transform.position = new Vector3(transform.position.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(transform.position.x, 0, transform.position.z)), transform.position.z);
-            if (Vector3.Distance(transform.position, targetPosition) < .2f)
-            {
-                //progress = SingleProgress.ToFinalPoint;
-                progress = SingleProgress.ToFirstPoint;
-                manager.NextBottleneckPass();
-                state = FlockState.Stopped;
-            }
-        }*/
     }
 }

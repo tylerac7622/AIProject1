@@ -15,6 +15,7 @@ public class FlockingManager : MonoBehaviour
     Bottleneck toPass;
     public bool runningBottleneck = false;
     int passingID;
+    int lastStartedID;
     int bottleneckClosestPoint; //1 or 2
 
     public Bottleneck ToPass
@@ -81,8 +82,6 @@ public class FlockingManager : MonoBehaviour
         {
             allFlock.Add(all[i]);
         }
-        //StartBottlenecking(GameObject.Find("Bridge (1)").transform.GetChild(0).GetComponent<Bottleneck>());
-
 
         state = Flock.FlockState.Standard;
     }
@@ -93,6 +92,10 @@ public class FlockingManager : MonoBehaviour
         SwitchTarget();
     }
 
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Stops the entire flock, freezing them in place and making them wait their turn
+    /// </summary>
     public void StopAllFlock()
     {
         for (int i = 0; i < allFlock.Count; i++)
@@ -101,6 +104,10 @@ public class FlockingManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Restarts the entire flock and resets their targetPosition to the position they were originally heading to before bottlenecking
+    /// </summary>
     public void ResumeAllFlock()
     {
         for (int i = 0; i < allFlock.Count; i++)
@@ -110,15 +117,27 @@ public class FlockingManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Starts the bottlenecking system by stopping all flockers, then starting the first flocker on the list to cross the bridge
+    /// Also checks which side of the bridge the flock is on and sets the variables accordingly
+    /// </summary>
     public void StartBottlenecking(Bottleneck passing)
     {
+        runningBottleneck = true;
+        passingID = 0;
+        lastStartedID = 0;
         toPass = passing;
         StopAllFlock();
-        runningBottleneck = true;
         state = Flock.FlockState.PassingBottleneck;
         saveTarget = allFlock[0].TargetPosition;
-        passingID = 0;
         allFlock[passingID].State = Flock.FlockState.PassingBottleneck;
+
+        allFlock[passingID].trackFlockPosition = new Vector2(0, 0);
+        for (int i = 1; i < allFlock.Count; i++)
+        {
+            allFlock[i].trackFlockPosition = new Vector2(allFlock[i].transform.position.x - allFlock[0].transform.position.x, allFlock[i].transform.position.z - allFlock[0].transform.position.z);
+        }
         allFlock[passingID].TargetPosition = toPass.FirstPoint;
         bottleneckClosestPoint = 1;
         if (Vector3.Distance(allFlock[0].transform.position, toPass.FirstPoint) > Vector3.Distance(allFlock[0].transform.position, toPass.SecondPoint))
@@ -128,6 +147,11 @@ public class FlockingManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Tyler Coppenbarger
+    /// Iterates the bottlenecking through to the next flocker. If there are no more flockers, stop bottlenecking
+    /// This function is run when a flocker that is bottlenecking reaches the end point of the bottleneck
+    /// </summary>
     public void NextBottleneckPass()
     {
         allFlock[passingID].State = Flock.FlockState.Stopped;
@@ -144,6 +168,30 @@ public class FlockingManager : MonoBehaviour
             if (bottleneckClosestPoint == 2)
             {
                 allFlock[passingID].TargetPosition = toPass.SecondPoint;
+            }
+        }
+    }
+    public void FinishCurrentBottlenecker()
+    {
+        allFlock[passingID].State = Flock.FlockState.Stopped;
+
+        passingID += 1;
+        if (passingID >= allFlock.Count)
+        {
+            ResumeAllFlock();
+            runningBottleneck = false;
+        }
+    }
+    public void StartNextBottlenecker()
+    {
+        lastStartedID += 1;
+        if (lastStartedID < allFlock.Count)
+        {
+            allFlock[lastStartedID].State = Flock.FlockState.PassingBottleneck;
+            allFlock[lastStartedID].TargetPosition = toPass.FirstPoint;
+            if (bottleneckClosestPoint == 2)
+            {
+                allFlock[lastStartedID].TargetPosition = toPass.SecondPoint;
             }
         }
     }

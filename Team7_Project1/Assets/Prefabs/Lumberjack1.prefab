@@ -1765,8 +1765,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cf94ab76bb75a34ea1dc3f57df7963f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 1
+  maxSpeed: 3
   radius: 1
+  state: 0
   tooClose: 1
   sepWgt: 2
   alignWgt: 1
@@ -1774,6 +1775,8 @@ MonoBehaviour:
   seekWgt: 2
   maxForce: 2
   flockRadius: 5
+  targetPosition: {x: 0, y: 0, z: 0}
+  trackFlockPosition: {x: 0, y: 0}
 --- !u!137 &137670651095369294
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

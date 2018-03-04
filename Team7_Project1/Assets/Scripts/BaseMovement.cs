@@ -16,7 +16,14 @@ public abstract class BaseMovement : MonoBehaviour {
     public float maxSpeed;
     public float radius;
 
+    protected bool overBridge;
+
     private Terrain terrain;//reference to the terrain data
+
+    public bool OverBridge
+    {
+        set { overBridge = value;  }
+    }
 
     // Use this for initialization
     public virtual void Start () {
@@ -52,6 +59,11 @@ public abstract class BaseMovement : MonoBehaviour {
         //add velocity to position
         position += velocity * Time.deltaTime;
         position.y = terrain.SampleHeight(new Vector3(/*(int)*/position.x, 0, /*(int)*/position.z)); //sets the Y position so that the entities sit on top of the terrain, may need adjustment for height of the model
+        //sets the proper position if on top of a bridge
+        if (overBridge)
+        {
+            position.y = 50;
+        }
         //calculate direction from velocity
         if (velocity.magnitude != 0)
         {
