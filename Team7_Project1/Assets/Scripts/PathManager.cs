@@ -108,7 +108,7 @@ public class PathManager : MonoBehaviour
             result2.Push(new Vector2(flipped.Peek().smallPos.x, flipped.Peek().smallPos.y));
             flipped.Pop();
         }
-        Debug.Log("New path!");
+        //Debug.Log("New path!");
         return result2;
     }
 }

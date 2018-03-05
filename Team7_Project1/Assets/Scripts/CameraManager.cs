@@ -53,7 +53,6 @@ public class CameraManager : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                Debug.Log(hit.collider.name);
                 if(hit.collider.name == "Terrain")
                 {
                     pather.ResetPath(new Vector2(hit.point.x, hit.point.z));
