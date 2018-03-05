@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Pathfinder : BaseMovement
 {
-    Stack<PathPoint> path = new Stack<PathPoint>();
+    Stack<Vector2> path = new Stack<Vector2>();
     PathManager manager;
 
     // Use this for initialization
@@ -22,26 +22,38 @@ public class Pathfinder : BaseMovement
     {
         if (path.Count > 0)
         {
-            if (Vector2.Distance(path.Peek().smallPos, new Vector2(transform.position.x, transform.position.z)) < .2f)
+            if (Vector2.Distance(path.Peek(), new Vector2(transform.position.x, transform.position.z)) < .2f)
             {
                 path.Pop();
+            }
+
+            if (path.Count > 0)
+            {
+                base.Update();
             }
         }
         else
         {
             //not actually random, just named so
-            int rand = manager.ClosestPoint(new Vector2(transform.position.x, transform.position.z)).transform.GetSiblingIndex();
-            int rand2 = Random.Range(0, manager.transform.childCount);
-            while (rand == rand2)
-            {
-                rand2 = Random.Range(0, manager.transform.childCount);
-            }
+            //int rand = manager.ClosestPoint(new Vector2(transform.position.x, transform.position.z)).transform.GetSiblingIndex();
+            //int rand2 = Random.Range(0, manager.transform.childCount);
+            //while (rand == rand2)
+            //{
+            //    rand2 = Random.Range(0, manager.transform.childCount);
+            //}
             //path = manager.CreatePath(new Vector2(transform.position.x, transform.position.z), manager.transform.GetChild(rand).GetComponent<PathPoint>());
-            path = manager.CreatePath(manager.transform.GetChild(rand).GetComponent<PathPoint>(), manager.transform.GetChild(rand2).GetComponent<PathPoint>());
+            //path = manager.CreatePath(manager.transform.GetChild(rand).GetComponent<PathPoint>(), manager.transform.GetChild(rand2).GetComponent<PathPoint>());
         }
-
-        base.Update();
 	}
+
+    public void ResetPath(Vector2 position)
+    {
+        //not actually random, just named so
+        int rand = manager.ClosestPoint(new Vector2(transform.position.x, transform.position.z)).transform.GetSiblingIndex();
+        path.Clear();
+
+        path = manager.CreatePath(manager.transform.GetChild(rand).GetComponent<PathPoint>(), position);
+    }
 
     /// <summary>
     /// Tyler Coppenbarger
@@ -50,13 +62,12 @@ public class Pathfinder : BaseMovement
     protected override void CalcSteeringForces()
     {
         Vector3 ultForce = Vector3.zero;
-        Vector3 target = new Vector3(path.Peek().smallPos.x, 0, path.Peek().smallPos.y);
+        Vector3 target = new Vector3(path.Peek().x, 0, path.Peek().y);
         target.y = GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(target.x, 0, target.y));
         ultForce += Seek(target) * 5;
 
         //limit by max force
-        Vector3.ClampMagnitude(ultForce, 10);
-        Debug.Log(ultForce);
+        Vector3.ClampMagnitude(ultForce, 5);
         //apply ultimate force
         ApplyForce(ultForce);
     }

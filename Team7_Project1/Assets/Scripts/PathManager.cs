@@ -15,8 +15,7 @@ public class PathManager : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-		
-	}
+    }
 
     /// <summary>
     /// Tyler Coppenbarger
@@ -26,11 +25,13 @@ public class PathManager : MonoBehaviour
     public PathPoint ClosestPoint(Vector2 check)
     {
         PathPoint result = null;
+        int value = -1;
         for (int i = 0; i < transform.childCount; i++)
         {
             if(result == null || Vector2.Distance(check, transform.GetChild(i).GetComponent<PathPoint>().smallPos) < Vector2.Distance(check, result.smallPos))
             {
                 result = transform.GetChild(i).GetComponent<PathPoint>();
+                value = i;
             }
         }
         return result;
@@ -41,12 +42,13 @@ public class PathManager : MonoBehaviour
     /// Creates an A* path when passed in a start and end pathPoint (eventually make this work with any position, not just pathPoints
     /// return: a stack of the shortest path between the two points
     /// </summary>
-    public Stack<PathPoint> CreatePath(PathPoint start, PathPoint end)
+    public Stack<Vector2> CreatePath(PathPoint start, Vector2 end)
     {
         //start from end, work backward making path to start
         Stack<PathPoint> result = new Stack<PathPoint>();
 
         // this object's children are all just path points
+        PathPoint endPoint = ClosestPoint(end);
 
         //boolean to determine which points have been checked
         bool[] allChecked = new bool[transform.childCount];
@@ -55,10 +57,10 @@ public class PathManager : MonoBehaviour
             allChecked[i] = false;
         }
         //the end is the last point in the stack
-        result.Push(end);
-        allChecked[end.transform.GetSiblingIndex()] = true;
+        result.Push(endPoint);
+        allChecked[endPoint.transform.GetSiblingIndex()] = true;
         bool pathEnded = false;
-        PathPoint currentPoint = end;
+        PathPoint currentPoint = endPoint;
         //end the loop when start is reached (whenever start is adjacent to the currentPoint
         while (!pathEnded)
         {
@@ -94,7 +96,19 @@ public class PathManager : MonoBehaviour
                 }
             }
         }
+        Stack<PathPoint> flipped = new Stack<PathPoint>();
+        while (result.Count > 0)
+        {
+            flipped.Push(result.Pop());
+        }
+        Stack<Vector2> result2 = new Stack<Vector2>();
+        result2.Push(end);
+        while(flipped.Count > 0)
+        {
+            result2.Push(new Vector2(flipped.Peek().smallPos.x, flipped.Peek().smallPos.y));
+            flipped.Pop();
+        }
         Debug.Log("New path!");
-        return result;
+        return result2;
     }
 }

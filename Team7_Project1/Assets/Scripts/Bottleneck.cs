@@ -53,7 +53,7 @@ public class Bottleneck : MonoBehaviour
         {
             if (!manager.runningBottleneck)
             {
-                manager.StartBottlenecking(this);
+                manager.StartBottlenecking(this, new Vector2(other.transform.position.x, other.transform.position.z));
             }
         }
         if (other.GetComponent<BaseMovement>() != null)

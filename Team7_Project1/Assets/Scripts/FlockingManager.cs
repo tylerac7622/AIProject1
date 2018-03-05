@@ -19,6 +19,8 @@ public class FlockingManager : MonoBehaviour
     Vector3 saveTarget;
     Bottleneck toPass;
     public bool runningBottleneck = false;
+    bool waitingForFlock;
+    Vector2 waitingPoint;
     int passingID;
     int lastStartedID;
     int bottleneckClosestPoint; //1 or 2
@@ -120,6 +122,25 @@ public class FlockingManager : MonoBehaviour
         flockerFollow.transform.position = allFlock[0].FlockCenter - allFlock[0].FlockDirection * 5;
         flockerFollow.transform.position = new Vector3(flockerFollow.transform.position.x, flockerFollow.transform.position.y + 5, flockerFollow.transform.position.z);
         flockerFollow.transform.LookAt(allFlock[0].FlockCenter + allFlock[0].transform.up);
+        if(waitingForFlock)
+        {
+            if (FarthestReachFromPoint(waitingPoint) < 5)
+            {
+                WaitStart();
+                waitingForFlock = false;
+            }
+            else
+            {
+                for (int i = 0; i < allFlock.Count; i++)
+                {
+                    float distTest = Vector2.Distance(waitingPoint, new Vector2(allFlock[i].transform.position.x, allFlock[i].transform.position.z));
+                    if (distTest < 5)
+                    {
+                        allFlock[i].State = Flock.FlockState.Stopped;
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -147,22 +168,57 @@ public class FlockingManager : MonoBehaviour
         }
     }
 
+    public float FarthestReachFromPoint(Vector2 point)
+    {
+        float dist = 0;
+        for (int i = 0; i < allFlock.Count; i++)
+        {
+            float distTest = Vector2.Distance(point, new Vector2(allFlock[i].transform.position.x, allFlock[i].transform.position.z));
+            if (distTest > dist)
+            {
+                dist = distTest;
+            }
+        }
+        return dist;
+    }
+
     /// <summary>
     /// Tyler Coppenbarger
     /// Starts the bottlenecking system by stopping all flockers, then starting the first flocker on the list to cross the bridge
     /// Also checks which side of the bridge the flock is on and sets the variables accordingly
     /// </summary>
-    public void StartBottlenecking(Bottleneck passing)
+    public void StartBottlenecking(Bottleneck passing, Vector2 firstCheck)
     {
+        waitingPoint = firstCheck;
         runningBottleneck = true;
         passingID = 0;
         lastStartedID = 0;
         toPass = passing;
+
+        if (FarthestReachFromPoint(firstCheck) < 5)
+        {
+            WaitStart();
+            waitingForFlock = false;
+        }
+        else
+        {
+            waitingForFlock = true;
+            for (int i = 0; i < allFlock.Count; i++)
+            {
+                float distTest = Vector2.Distance(firstCheck, new Vector2(allFlock[i].transform.position.x, allFlock[i].transform.position.z));
+                if (distTest < 5)
+                {
+                    allFlock[i].State = Flock.FlockState.Stopped;
+                }
+            }
+        }
+    }
+
+    public void WaitStart()
+    {
         StopAllFlock();
-        state = Flock.FlockState.PassingBottleneck;
         saveTarget = allFlock[0].TargetPosition;
         allFlock[passingID].State = Flock.FlockState.PassingBottleneck;
-
         allFlock[passingID].trackFlockPosition = new Vector2(0, 0);
         for (int i = 1; i < allFlock.Count; i++)
         {
@@ -184,7 +240,10 @@ public class FlockingManager : MonoBehaviour
     /// </summary>
     public void NextBottleneckPass()
     {
-        allFlock[passingID].State = Flock.FlockState.Stopped;
+        if (passingID != 0)
+        {
+            allFlock[passingID].State = Flock.FlockState.Stopped;
+        }
         passingID += 1;
         if (passingID >= allFlock.Count)
         {

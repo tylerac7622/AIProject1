@@ -152,13 +152,13 @@ public class Flock : BaseMovement
             {
                 ultForce += sepWgt * Separation();
             }
-        }
 
-        //obstacle avoidance
-        GameObject[] obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
-        for (int i = 0; i <= obstacles.Length; i++)
-        {
-            ultForce += 10 * ObstacleAvoidance(obstacles[i], 3.0f);
+            //obstacle avoidance
+            GameObject[] obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
+            for (int i = 0; i < obstacles.Length; i++)
+            {
+                ultForce += 10 * ObstacleAvoidance(obstacles[i], 4f);
+            }
         }
 
         //apply the seek force that moves the flock toward
