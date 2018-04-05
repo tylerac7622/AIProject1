@@ -30,7 +30,7 @@ public class Bottleneck : MonoBehaviour
     /// </summary>
     void Start ()
     {
-        manager = GameObject.Find("FlockingManager").GetComponent<FlockingManager>();
+        //manager = GameObject.Find("FlockingManager").GetComponent<FlockingManager>();
 
         firstPoint = new Vector3(firstPointPub.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(firstPointPub.x, 0, firstPointPub.y)), firstPointPub.y);
         secondPoint = new Vector3(secondPointPub.x, GameObject.Find("Terrain").GetComponent<Terrain>().SampleHeight(new Vector3(secondPointPub.x, 0, secondPointPub.y)), secondPointPub.y);
