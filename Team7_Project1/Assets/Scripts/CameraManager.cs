@@ -101,7 +101,8 @@ public class CameraManager : MonoBehaviour
         if (camList[currentCam].GetComponent<Camera>().fieldOfView > 90)
         {
             camList[currentCam].GetComponent<Camera>().fieldOfView = 90;
-        }
+		}
+		moveSpeed = camList [currentCam].GetComponent<Camera> ().fieldOfView / 60;
         //change camera view on pressing enter
         if (Input.GetKeyDown(KeyCode.D))
         {
