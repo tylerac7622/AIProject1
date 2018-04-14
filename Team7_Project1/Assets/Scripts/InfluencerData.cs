@@ -23,16 +23,16 @@ public class InfluencerData : MonoBehaviour
         switch(tag)
         {
             case "Black":
-                influence = 3;
+                influence = 4;
                 break;
             case "Yellow":
-                influence = 2;
+                influence = 3;
                 break;
             case "Blue":
-                influence = 1;
+                influence = 2;
                 break;
             case "White":
-                influence = 0;
+                influence = 1;
                 break;
             default:
                 Debug.Log("This object should not have an InfluencerData script!");

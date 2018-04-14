@@ -110,4 +110,4 @@ MonoBehaviour:
   gridX: 0
   gridY: 0
   team: 0
-  influence: 0
+  influence: 4
