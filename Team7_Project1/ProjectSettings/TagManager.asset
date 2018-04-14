@@ -10,6 +10,7 @@ TagManager:
   - Yellow
   - Blue
   - White
+  - Terrain
   layers:
   - Default
   - TransparentFX

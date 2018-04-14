@@ -1348,6 +1348,10 @@ Prefab:
       propertyPath: m_LocalScale.z
       value: 99.99997
       objectReference: {fileID: 0}
+    - target: {fileID: 1856350717186150, guid: b82d593a84e3163448cd251fed7a5521, type: 2}
+      propertyPath: m_TagString
+      value: Obstacle
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b82d593a84e3163448cd251fed7a5521, type: 2}
   m_IsPrefabParent: 0
@@ -1637,7 +1641,7 @@ GameObject:
   - component: {fileID: 328394194}
   m_Layer: 0
   m_Name: A Cottage (2)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2129,6 +2133,10 @@ Prefab:
     - target: {fileID: 4194745833817804, guid: b82d593a84e3163448cd251fed7a5521, type: 2}
       propertyPath: m_LocalScale.y
       value: 99.999985
+      objectReference: {fileID: 0}
+    - target: {fileID: 1856350717186150, guid: b82d593a84e3163448cd251fed7a5521, type: 2}
+      propertyPath: m_TagString
+      value: Obstacle
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b82d593a84e3163448cd251fed7a5521, type: 2}
@@ -5590,6 +5598,10 @@ Prefab:
       propertyPath: m_LocalScale.y
       value: 100.000046
       objectReference: {fileID: 0}
+    - target: {fileID: 1856350717186150, guid: b82d593a84e3163448cd251fed7a5521, type: 2}
+      propertyPath: m_TagString
+      value: Obstacle
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b82d593a84e3163448cd251fed7a5521, type: 2}
   m_IsPrefabParent: 0
@@ -5799,9 +5811,9 @@ GameObject:
   - component: {fileID: 1128818116}
   - component: {fileID: 1128818115}
   - component: {fileID: 1128818114}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain
-  m_TagString: Untagged
+  m_TagString: Terrain
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
@@ -6770,6 +6782,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1258058306}
   - component: {fileID: 1258058305}
+  - component: {fileID: 1258058307}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -6804,6 +6817,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1258058307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1258058304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d621eb752d46a384282a9838abf4c938, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitPlacementText: {fileID: 1733091711}
+  black: {fileID: 1053651573881696, guid: 7abbb52b2f333ce40a658407e7bd1897, type: 2}
+  yellow: {fileID: 1133711287938152, guid: 54bca742fb3fdb447bd45e33ffe25e8a, type: 2}
+  blue: {fileID: 1746145602146798, guid: 30ee68ec4122e2e46b7c6541ca1dcba2, type: 2}
+  white: {fileID: 1581303386971758, guid: 9f03f6a7c12eb81418709e3f5d44db69, type: 2}
 --- !u!1001 &1262332680
 Prefab:
   m_ObjectHideFlags: 0
@@ -9903,7 +9932,7 @@ GameObject:
   - component: {fileID: 1733091712}
   - component: {fileID: 1733091711}
   m_Layer: 5
-  m_Name: Placing Units
+  m_Name: Placing Units Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9916,7 +9945,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1733091709}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -410, y: -270, z: 0}
+  m_LocalPosition: {x: -410, y: -259, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 228764006}
@@ -9924,7 +9953,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 102, y: 114}
+  m_AnchoredPosition: {x: 102, y: 125}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1733091711
@@ -9959,8 +9988,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Placement Controls:\n1,2,3,4: Switch to unit of \nCorresponding Strength\nLeft
-    Click: Red Team Placement\nRight Click: Green Team Placement"
+  m_Text: "Placement Controls:\nCurrent Strength: 1\n1,2,3,4: Switch to unit of \nCorresponding
+    Strength\nLeft Click: Red Team Placement\nRight Click: Green Team Placement"
 --- !u!222 &1733091712
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10984,15 +11013,15 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1920358005}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -346, y: -310, z: 0}
-  m_LocalScale: {x: 3.074361, y: 1.6829778, z: 1}
+  m_LocalPosition: {x: -346, y: -307, z: 0}
+  m_LocalScale: {x: 3.074361, y: 1.8296477, z: 1}
   m_Children: []
   m_Father: {fileID: 228764006}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 166, y: 74}
+  m_AnchoredPosition: {x: 166, y: 77}
   m_SizeDelta: {x: 100, y: 74.70001}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1920358007
@@ -11393,7 +11422,7 @@ GameObject:
   - component: {fileID: 1974392347}
   m_Layer: 0
   m_Name: A Cottage (1)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12213,7 +12242,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 22
-  orthographic: 1
+  orthographic: 0
   orthographic size: 55
   m_Depth: 0
   m_CullingMask:
