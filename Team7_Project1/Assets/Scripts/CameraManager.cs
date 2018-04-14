@@ -17,8 +17,10 @@ public class CameraManager : MonoBehaviour
     //private PathManager pMan;
     //private FlockingManager fMan;
 
-    private float zoomSpeed = 1;
-    private float moveSpeed = 2;
+    private float zoomSpeed = .1f;
+    private float moveSpeed = .2f;
+
+    public InfluenceMap influenceMap;
 
     // Use this for initialization
     void Start ()
@@ -98,11 +100,15 @@ public class CameraManager : MonoBehaviour
         {
             camList[currentCam].GetComponent<Camera>().fieldOfView = 5;
         }
-        if (camList[currentCam].GetComponent<Camera>().fieldOfView > 90)
+        if (camList[currentCam].GetComponent<Camera>().fieldOfView > 30)
         {
-            camList[currentCam].GetComponent<Camera>().fieldOfView = 90;
-		}
-		moveSpeed = camList [currentCam].GetComponent<Camera> ().fieldOfView / 60;
+            camList[currentCam].GetComponent<Camera>().fieldOfView = 30;
+        }
+        if (Input.GetKey(KeyCode.Space))
+        {
+            influenceMap.GenerateGrid();
+        }
+        moveSpeed = camList [currentCam].GetComponent<Camera> ().fieldOfView / 60;
         //change camera view on pressing enter
         if (Input.GetKeyDown(KeyCode.D))
         {
