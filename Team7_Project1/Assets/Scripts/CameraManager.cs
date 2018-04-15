@@ -104,9 +104,14 @@ public class CameraManager : MonoBehaviour
         {
             camList[currentCam].GetComponent<Camera>().fieldOfView = 30;
         }
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
+            influenceMap.gameObject.SetActive(true);
             influenceMap.GenerateGrid();
+        }
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            influenceMap.gameObject.SetActive(!influenceMap.gameObject.activeSelf);
         }
         moveSpeed = camList [currentCam].GetComponent<Camera> ().fieldOfView / 60;
         //change camera view on pressing enter

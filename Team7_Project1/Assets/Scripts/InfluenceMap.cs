@@ -33,7 +33,7 @@ public class InfluenceMap : MonoBehaviour
     //top = 4 -- only checks up
     public void ChangeGrid(int x, int y, int val, int direction)
     {
-        Debug.Log(x + ", " + y + " --- " + val);
+        //Debug.Log(x + ", " + y + " --- " + val);
         grid[x, y] += val;
         int nextVal = 0;
         if(val > 0)
